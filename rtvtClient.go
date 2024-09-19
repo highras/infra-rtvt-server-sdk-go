@@ -55,10 +55,12 @@ func (client *RTVTClient) Login(pid int32, timestamp int64, token string) bool {
 	quest.Param("version", "rtvt-go-client-"+VERSION)
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
+		client.logger.Println("login failed err:", err)
 		return false
 	}
 	successed, ok := answer.GetBool("successed")
 	if !ok || !successed {
+		client.logger.Println("login failed err: invalid token")
 		return false
 	}
 	client.isLogin = true
