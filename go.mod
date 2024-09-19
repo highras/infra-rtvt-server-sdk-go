@@ -1,4 +1,4 @@
-module rtvt
+module github.com/highras/infra-rtvt-server-sdk-go
 
 go 1.21.2
 
