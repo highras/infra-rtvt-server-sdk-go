@@ -8,7 +8,7 @@ import (
 
 type rtvtServerQuestProcessor struct {
 	logger    RTVTLogger
-	callbacks IRTVTCallback
+	callbacks RTVTCallback
 }
 
 func (processor *rtvtServerQuestProcessor) Process(method string) func(*fpnn.Quest) (*fpnn.Answer, error) {

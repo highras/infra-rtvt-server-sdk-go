@@ -21,7 +21,7 @@ type RTVTClient struct {
 	mutex          sync.Mutex
 }
 
-func CreateRTVTClient(endpoints string, callbacks IRTVTCallback, logger RTVTLogger) *RTVTClient {
+func CreateRTVTClient(endpoints string, callbacks RTVTCallback, logger RTVTLogger) *RTVTClient {
 	rtvtClient := &RTVTClient{}
 	rtvtClient.client = fpnn.NewTCPClient(endpoints)
 	rtvtClient.logger = logger

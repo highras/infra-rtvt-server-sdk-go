@@ -6,11 +6,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"hash"
+	"log"
 	"os"
-	"rtvt"
 	"strconv"
 	"sync"
 	"time"
+
+	rtvt "github.com/highras/infra-rtvt-server-sdk-go"
 )
 
 type Callbacks struct {
@@ -62,7 +64,8 @@ func genHMACToken(pid int32, ts int64, key string) string {
 func main() {
 	filePath := os.Args[1]
 	callbacks := &Callbacks{}
-	logger := &MyLogger{}
+	// logger := &MyLogger{}
+	logger := log.New(os.Stdout, "RTVT SDK", log.LstdFlags)
 	rtvtClient := rtvt.CreateRTVTClient("rtvt-bj.ilivedata.com:14001", callbacks, logger)
 	ts := time.Now().Unix()
 	token := genHMACToken(81700001, ts, "enhjdmI=")
