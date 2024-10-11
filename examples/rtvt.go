@@ -15,6 +15,9 @@ import (
 	rtvt "github.com/highras/infra-rtvt-server-sdk-go"
 )
 
+var pid int32 = 0
+var secret string = "your secret"
+
 type Callbacks struct {
 }
 
@@ -68,12 +71,12 @@ func main() {
 	logger := log.New(os.Stdout, "RTVT SDK", log.LstdFlags)
 	rtvtClient := rtvt.CreateRTVTClient("rtvt-bj.ilivedata.com:14001", callbacks, logger)
 	ts := time.Now().Unix()
-	token := genHMACToken(81700001, ts, "enhjdmI=")
+	token := genHMACToken(pid, ts, secret)
 	if len(token) == 0 {
 		return
 	}
 
-	succ := rtvtClient.Login(81700001, ts, token)
+	succ := rtvtClient.Login(pid, ts, token)
 	if !succ {
 		return
 	}

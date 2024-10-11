@@ -25,17 +25,18 @@ func (client *RTVTClient) Login(pid int32, timestamp int64, token string) bool
 # StartTranslate
 
 ```go
-func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string) (int64, error)
+func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string, codec AudioCodec) (int64, error)
 ```
 
-| **param**    | **description**                                                                                                                                                          |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| asrResult    | if true, you can get the recognize result.                                                                                                                               |
-| tempResult   | if both asrResult and temp Result are true. you can get the recognize temp result. If  both tempResult and transResult are true,  you can get the translate temp result. |
-| transResult  | if true, you can get the translate result.                                                                                                                               |
-| srcLanguage  | source language                                                                                                                                                          |
-| destLanguage | destination language                                                                                                                                                     |
-| userId       | user id, can be empty                                                                                                                                                    |
+| **param** | **description**                                                                                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| asrResult       | if true, you can get the recognize result.                                                                                                                               |
+| tempResult      | if both asrResult and temp Result are true. you can get the recognize temp result. If  both tempResult and transResult are true,  you can get the translate temp result. |
+| transResult     | if true, you can get the translate result.                                                                                                                               |
+| srcLanguage     | source language                                                                                                                                                          |
+| destLanguage    | destination language                                                                                                                                                     |
+| userId          | user id, can be empty                                                                                                                                                    |
+| codec           | the codec of audio data                                                                                                                                                  |
 
 # SendData
 

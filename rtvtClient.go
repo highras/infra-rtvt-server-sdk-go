@@ -7,7 +7,7 @@ import (
 	"github.com/highras/fpnn-sdk-go/src/fpnn"
 )
 
-const VERSION = "0.1.0"
+const VERSION = "0.1.1"
 
 type RTVTClient struct {
 	client         *fpnn.TCPClient
@@ -20,6 +20,13 @@ type RTVTClient struct {
 	isClose        bool
 	mutex          sync.Mutex
 }
+
+type AudioCodec int
+
+const (
+	PCM AudioCodec = iota
+	OPUS
+)
 
 func CreateRTVTClient(endpoints string, callbacks RTVTCallback, logger RTVTLogger) *RTVTClient {
 	rtvtClient := &RTVTClient{}
@@ -67,7 +74,7 @@ func (client *RTVTClient) Login(pid int32, timestamp int64, token string) bool {
 	return true
 }
 
-func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResult bool, ttsResult bool, srcLanguage string, destLanguage string, userId string, ttsSpeaker string) (int64, error) {
+func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResult bool, ttsResult bool, srcLanguage string, destLanguage string, userId string, ttsSpeaker string, codec AudioCodec) (int64, error) {
 	quest := fpnn.NewQuest("voiceStart")
 	quest.Param("asrResult", asrResult)
 	quest.Param("asrTempResult", tempResult)
@@ -77,6 +84,7 @@ func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResul
 	quest.Param("destLanguage", destLanguage)
 	quest.Param("userId", userId)
 	quest.Param("ttsSpeaker", ttsSpeaker)
+	quest.Param("codec", int(codec))
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
 		return 0, errors.New("voice start failed")
@@ -126,14 +134,11 @@ func (client *RTVTClient) voiceEnd(streamId int64) error {
 	return nil
 }
 
-func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string) (int64, error) {
-	return client.voiceStart(asrResult, tempResult, transResult, false, srcLanguage, destLanguage, userId, "")
+func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string, codec AudioCodec) (int64, error) {
+	return client.voiceStart(asrResult, tempResult, transResult, false, srcLanguage, destLanguage, userId, "", codec)
 }
 
 func (client *RTVTClient) SendData(streamId int64, data []byte, seq int64, timestamp int64) error {
-	if len(data) != 640 {
-		return errors.New("pcm data must be 16000Hz 20ms")
-	}
 	return client.voiceData(streamId, data, seq, timestamp)
 }
 
