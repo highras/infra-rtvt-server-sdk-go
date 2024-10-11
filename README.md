@@ -73,7 +73,7 @@ if !succ {
 After login, you can start realtime translate and recognize with StartTranslate. You will get a streamId from StartTranslate. The streamId is a unique identifier to one stream.
 
 ```go
-streamId, _ := rtvtClient.StartTranslate(true, true, true, "zh", "en", "user id")
+streamId, _ := rtvtClient.StartTranslate(true, true, true, "zh", "en", "user id", rtvt.PCM)
 ```
 
 Use SendData to send PCM data in realtime, the PCM data's samplerate must be 16000Hz, sampledepth must be 16bit and length of the data must be 20ms. That means one frame of the audio must be 640 bytes, if you using SendData with other length of data, it will failed, and return an error.
