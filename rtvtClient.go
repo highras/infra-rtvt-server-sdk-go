@@ -7,7 +7,7 @@ import (
 	"github.com/highras/fpnn-sdk-go/src/fpnn"
 )
 
-const VERSION = "0.1.1"
+const VERSION = "0.1.2"
 
 type RTVTClient struct {
 	client         *fpnn.TCPClient
@@ -74,7 +74,7 @@ func (client *RTVTClient) Login(pid int32, timestamp int64, token string) bool {
 	return true
 }
 
-func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResult bool, ttsResult bool, srcLanguage string, destLanguage string, userId string, ttsSpeaker string, codec AudioCodec) (int64, error) {
+func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResult bool, ttsResult bool, srcLanguage string, destLanguage string, userId string, ttsSpeaker string, vadSlienceTime int64, codec AudioCodec) (int64, error) {
 	quest := fpnn.NewQuest("voiceStart")
 	quest.Param("asrResult", asrResult)
 	quest.Param("asrTempResult", tempResult)
@@ -84,6 +84,7 @@ func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResul
 	quest.Param("destLanguage", destLanguage)
 	quest.Param("userId", userId)
 	quest.Param("ttsSpeaker", ttsSpeaker)
+	quest.Param("vadSlienceTime", vadSlienceTime)
 	quest.Param("codec", int(codec))
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
@@ -134,8 +135,11 @@ func (client *RTVTClient) voiceEnd(streamId int64) error {
 	return nil
 }
 
-func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string, codec AudioCodec) (int64, error) {
-	return client.voiceStart(asrResult, tempResult, transResult, false, srcLanguage, destLanguage, userId, "", codec)
+func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string, vadSlienceTime int64, codec AudioCodec) (int64, error) {
+	if vadSlienceTime > 2000 || (vadSlienceTime < 20 && vadSlienceTime != -1) {
+		return 0, errors.New("invalid vad slience time.")
+	}
+	return client.voiceStart(asrResult, tempResult, transResult, false, srcLanguage, destLanguage, userId, "", vadSlienceTime, codec)
 }
 
 func (client *RTVTClient) SendData(streamId int64, data []byte, seq int64, timestamp int64) error {
