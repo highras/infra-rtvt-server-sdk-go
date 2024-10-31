@@ -50,7 +50,7 @@ func CreateRTVTClient(endpoints string, callbacks RTVTCallback, logger RTVTLogge
 	return rtvtClient
 }
 
-func (client *RTVTClient) Login(pid int32, timestamp int64, token string) bool {
+func (client *RTVTClient) Login(pid int32, timestamp int64, token string) (bool, error) {
 	client.pid = pid
 	client.loginTimestamp = timestamp
 	client.loginToken = token
@@ -62,15 +62,15 @@ func (client *RTVTClient) Login(pid int32, timestamp int64, token string) bool {
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
 		client.logger.Println("login failed err:", err)
-		return false
+		return false, err
 	}
 	successed, ok := answer.GetBool("successed")
 	if !ok || !successed {
 		client.logger.Println("login failed err: invalid token")
-		return false
+		return false, ErrFooInvalidToken
 	}
 	client.isLogin = true
-	return true
+	return true, nil
 }
 
 func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResult bool, ttsResult bool, srcLanguage string, destLanguage string, userId string, ttsSpeaker string, vadSlienceTime int64, codec AudioCodec) (int64, error) {
@@ -87,7 +87,7 @@ func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResul
 	quest.Param("codec", int(codec))
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
-		return 0, ErrFooStartStreamFailed
+		return 0, err
 	}
 	streamId, ok := answer.GetInt64("streamId")
 	if ok {
@@ -95,7 +95,13 @@ func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResul
 	} else {
 		code, _ := answer.GetInt64("code")
 		client.logger.Println("voice start failed, code:", code)
-		return 0, ErrFooStartStreamFailed
+		if code == 800105 {
+			return 0, ErrFooUnsupportedLanguage
+		} else if code == 800107 {
+			return 0, ErrFooStreamTooMany
+		} else {
+			return 0, ErrFooStartStreamFailed
+		}
 	}
 }
 
@@ -107,12 +113,16 @@ func (client *RTVTClient) voiceData(streamId int64, data []byte, seq int64, time
 	quest.Param("ts", timestamp)
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
-		return ErrFooSendVoiceDataFailed
+		return err
 	}
 	code, _ := answer.GetInt64("code")
 	if code != fpnn.FPNN_EC_OK {
 		client.logger.Println("send voice data failed code:", code)
-		return ErrFooSendVoiceDataFailed
+		if code == 800200 {
+			return ErrFooStreamNotExist
+		} else {
+			return ErrFooSendVoiceDataFailed
+		}
 	}
 	return nil
 }
@@ -124,12 +134,16 @@ func (client *RTVTClient) voiceEnd(streamId int64) error {
 	quest.Param("streamId", streamId)
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
-		return ErrFooEndStreamFailed
+		return err
 	}
 	code, _ := answer.GetInt64("code")
 	if code != fpnn.FPNN_EC_OK {
 		client.logger.Println("voice end failed code:", code)
-		return ErrFooEndStreamFailed
+		if code == 800200 {
+			return ErrFooStreamNotExist
+		} else {
+			return ErrFooEndStreamFailed
+		}
 	}
 	return nil
 }
