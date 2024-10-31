@@ -1,7 +1,6 @@
 package rtvt
 
 import (
-	"errors"
 	"sync"
 
 	"github.com/highras/fpnn-sdk-go/src/fpnn"
@@ -88,7 +87,7 @@ func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResul
 	quest.Param("codec", int(codec))
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
-		return 0, errors.New("voice start failed")
+		return 0, ErrFooStartStreamFailed
 	}
 	streamId, ok := answer.GetInt64("streamId")
 	if ok {
@@ -96,7 +95,7 @@ func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResul
 	} else {
 		code, _ := answer.GetInt64("code")
 		client.logger.Println("voice start failed, code:", code)
-		return 0, errors.New("voice start failed")
+		return 0, ErrFooStartStreamFailed
 	}
 }
 
@@ -108,12 +107,12 @@ func (client *RTVTClient) voiceData(streamId int64, data []byte, seq int64, time
 	quest.Param("ts", timestamp)
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
-		return errors.New("send voice data failed")
+		return ErrFooSendVoiceDataFailed
 	}
 	code, _ := answer.GetInt64("code")
 	if code != fpnn.FPNN_EC_OK {
 		client.logger.Println("send voice data failed code:", code)
-		return errors.New("send voice data failed")
+		return ErrFooSendVoiceDataFailed
 	}
 	return nil
 }
@@ -125,19 +124,19 @@ func (client *RTVTClient) voiceEnd(streamId int64) error {
 	quest.Param("streamId", streamId)
 	answer, err := client.client.SendQuest(quest)
 	if err != nil {
-		return errors.New("send voice end failed")
+		return ErrFooEndStreamFailed
 	}
 	code, _ := answer.GetInt64("code")
 	if code != fpnn.FPNN_EC_OK {
 		client.logger.Println("voice end failed code:", code)
-		return errors.New("send voice end failed")
+		return ErrFooEndStreamFailed
 	}
 	return nil
 }
 
 func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string, vadSlienceTime int64, codec AudioCodec) (int64, error) {
 	if vadSlienceTime > 2000 || (vadSlienceTime < 20 && vadSlienceTime != -1) {
-		return 0, errors.New("invalid vad slience time.")
+		return 0, ErrFooInvalidVadSlienceTime
 	}
 	return client.voiceStart(asrResult, tempResult, transResult, false, srcLanguage, destLanguage, userId, "", vadSlienceTime, codec)
 }
