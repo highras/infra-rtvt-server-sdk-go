@@ -76,7 +76,7 @@ func main() {
 		return
 	}
 
-	succ := rtvtClient.Login(pid, ts, token)
+	succ, _ := rtvtClient.Login(pid, ts, token)
 	if !succ {
 		return
 	}
