@@ -80,7 +80,9 @@ func main() {
 	if !succ {
 		return
 	}
-	streamId, _ := rtvtClient.StartTranslate(true, true, true, "zh", "en", "go test user", 2000, rtvt.PCM)
+
+	lauguagesArray := []string{"ja", "es"}
+	streamId, _ := rtvtClient.StartTranslate(true, true, true, "zh", lauguagesArray, "en", "go test user", 2000, rtvt.PCM)
 	ticker := time.NewTicker(20 * time.Millisecond)
 	wg := sync.WaitGroup{}
 	wg.Add(1)

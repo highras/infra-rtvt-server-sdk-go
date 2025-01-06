@@ -27,7 +27,7 @@ func (client *RTVTClient) Login(pid int32, timestamp int64, token string) bool
 # StartTranslate
 
 ```go
-func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string, vadSlienceTime int64, codec AudioCodec) (int64, error)
+func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, srcAltLauguage []string, destLanguage string, userId string, vadSlienceTime int64, codec AudioCodec) (int64, error)
 ```
 
 
@@ -37,6 +37,7 @@ func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transR
 | tempResult     | if both asrResult and temp Result are true. you can get the recognize temp result. If  both tempResult and transResult are true,  you can get the translate temp result. |
 | transResult    | if true, you can get the translate result.                                                                                                                               |
 | srcLanguage    | source language                                                                                                                                                          |
+| srcAltLanguage | alternative languages  |
 | destLanguage   | destination language                                                                                                                                                     |
 | userId         | user id, can be empty                                                                                                                                                    |
 | vadSlienceTime | vad time. -1 means not use vad cut. 200-2000 means use the vad cut sentence. (milliseconds)                                                                             |

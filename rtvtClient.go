@@ -73,13 +73,14 @@ func (client *RTVTClient) Login(pid int32, timestamp int64, token string) (bool,
 	return true, nil
 }
 
-func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResult bool, ttsResult bool, srcLanguage string, destLanguage string, userId string, ttsSpeaker string, vadSlienceTime int64, codec AudioCodec) (int64, error) {
+func (client *RTVTClient) voiceStart(asrResult bool, tempResult bool, transResult bool, ttsResult bool, srcLanguage string, srcAltLanguage []string, destLanguage string, userId string, ttsSpeaker string, vadSlienceTime int64, codec AudioCodec) (int64, error) {
 	quest := fpnn.NewQuest("voiceStart")
 	quest.Param("asrResult", asrResult)
 	quest.Param("asrTempResult", tempResult)
 	quest.Param("transResult", transResult)
 	quest.Param("ttsResult", ttsResult)
 	quest.Param("srcLanguage", srcLanguage)
+	quest.Param("srcAltLanguage", srcAltLanguage)
 	quest.Param("destLanguage", destLanguage)
 	quest.Param("userId", userId)
 	quest.Param("ttsSpeaker", ttsSpeaker)
@@ -148,11 +149,11 @@ func (client *RTVTClient) voiceEnd(streamId int64) error {
 	return nil
 }
 
-func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, destLanguage string, userId string, vadSlienceTime int64, codec AudioCodec) (int64, error) {
+func (client *RTVTClient) StartTranslate(asrResult bool, tempResult bool, transResult bool, srcLanguage string, srcAltLanguage []string, destLanguage string, userId string, vadSlienceTime int64, codec AudioCodec) (int64, error) {
 	if vadSlienceTime > 2000 || (vadSlienceTime < 20 && vadSlienceTime != -1) {
 		return 0, ErrFooInvalidVadSlienceTime
 	}
-	return client.voiceStart(asrResult, tempResult, transResult, false, srcLanguage, destLanguage, userId, "", vadSlienceTime, codec)
+	return client.voiceStart(asrResult, tempResult, transResult, false, srcLanguage, srcAltLanguage, destLanguage, userId, "", vadSlienceTime, codec)
 }
 
 func (client *RTVTClient) SendData(streamId int64, data []byte, seq int64, timestamp int64) error {
